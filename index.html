@@ -1,0 +1,1613 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>HYROX // Training Command Center</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Fraunces:opsz,wght@9..144,300;9..144,400;9..144,500;9..144,600;9..144,700&family=JetBrains+Mono:wght@300;400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<style>
+  :root {
+    --bg-page: #0a0908;
+    --bg-primary: #131211;
+    --bg-secondary: #1a1918;
+    --bg-tertiary: #232120;
+    --bg-elevated: #1c1b1a;
+    --text-primary: #ffffff;
+    --text-secondary: #ece7dd;
+    --text-tertiary: #b8b0a0;
+    --border-thin: rgba(212, 168, 109, 0.12);
+    --border-mid: rgba(212, 168, 109, 0.26);
+    --border-strong: rgba(212, 168, 109, 0.55);
+    --bronze: #d4a86d;
+    --bronze-light: #e6bf85;
+    --bronze-bright: #f0cc91;
+    --bronze-dark: #9c7846;
+    --bronze-muted: #7a5d36;
+    --bronze-glow: rgba(212, 168, 109, 0.18);
+    --bronze-shadow: rgba(212, 168, 109, 0.35);
+    --accent-text: #1a1411;
+    --radius-sm: 2px;
+    --radius-md: 4px;
+    --radius-lg: 6px;
+    --font-sans: "Inter", -apple-system, BlinkMacSystemFont, "Helvetica Neue", Arial, sans-serif;
+    --font-display: "Fraunces", "Inter", Georgia, serif;
+    --font-mono: "JetBrains Mono", "SF Mono", "Menlo", monospace;
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    padding: 0;
+    background: var(--bg-page);
+    color: var(--text-primary);
+    font-family: var(--font-sans);
+    font-size: 16px;
+    line-height: 1.6;
+    min-height: 100vh;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    font-feature-settings: "ss01", "cv01", "cv11";
+  }
+
+  .hx-app {
+    max-width: 920px;
+    margin: 0 auto;
+    padding: 2rem 1.25rem 4rem;
+  }
+
+  .hx-hero {
+    background: var(--bg-primary);
+    border: 1px solid var(--border-thin);
+    border-radius: var(--radius-lg);
+    padding: 2.25rem 2rem 1.75rem;
+    margin-bottom: 1.25rem;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .hx-hero::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 1px;
+    background: linear-gradient(to right, transparent, var(--bronze) 25%, var(--bronze) 75%, transparent);
+  }
+
+  .hx-hero::after {
+    content: "";
+    position: absolute;
+    top: -120px;
+    right: -120px;
+    width: 280px;
+    height: 280px;
+    background: radial-gradient(circle, var(--bronze-glow) 0%, transparent 60%);
+    pointer-events: none;
+  }
+
+  .hx-eye {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    letter-spacing: 0.22em;
+    color: var(--bronze);
+    text-transform: uppercase;
+    margin: 0 0 1rem;
+    font-weight: 500;
+    position: relative;
+    z-index: 1;
+  }
+
+  .hx-eye-mark {
+    color: var(--bronze-bright);
+    margin: 0 6px;
+  }
+
+  .hx-title {
+    font-family: var(--font-display);
+    font-size: 56px;
+    font-weight: 400;
+    margin: 0 0 0.75rem;
+    color: var(--text-primary);
+    letter-spacing: -0.035em;
+    line-height: 0.95;
+    font-style: normal;
+    position: relative;
+    z-index: 1;
+  }
+
+  .hx-title em {
+    font-style: italic;
+    font-weight: 300;
+    color: var(--bronze-bright);
+  }
+
+  .hx-sub {
+    font-size: 14px;
+    color: var(--text-secondary);
+    margin: 0 0 1.75rem;
+    max-width: 540px;
+    line-height: 1.55;
+    font-weight: 450;
+    position: relative;
+    z-index: 1;
+  }
+
+  .hx-cd {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1px;
+    background: var(--border-thin);
+    border: 1px solid var(--border-thin);
+    position: relative;
+    z-index: 1;
+  }
+
+  .hx-cd-c {
+    background: var(--bg-primary);
+    padding: 1.1rem 1rem;
+    text-align: left;
+    position: relative;
+    transition: background 0.2s;
+  }
+
+  .hx-cd-c::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 0;
+    height: 2px;
+    background: var(--bronze);
+    transition: width 0.3s ease;
+  }
+
+  .hx-cd-c:hover { background: var(--bg-secondary); }
+  .hx-cd-c:hover::before { width: 100%; }
+
+  .hx-cd-n {
+    font-family: var(--font-display);
+    font-size: 36px;
+    font-weight: 400;
+    color: var(--text-primary);
+    line-height: 1;
+    letter-spacing: -0.03em;
+  }
+
+  .hx-cd-l {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    color: var(--text-tertiary);
+    margin-top: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.18em;
+    font-weight: 400;
+  }
+
+  .hx-tabs {
+    display: flex;
+    gap: 0;
+    margin-bottom: 1.25rem;
+    border-bottom: 1px solid var(--border-thin);
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+
+  .hx-tabs::-webkit-scrollbar { display: none; }
+
+  .hx-tab {
+    background: transparent;
+    border: none;
+    padding: 14px 20px;
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--text-tertiary);
+    cursor: pointer;
+    border-bottom: 1px solid transparent;
+    margin-bottom: -1px;
+    font-family: var(--font-sans);
+    transition: color 0.2s, border-color 0.2s;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    white-space: nowrap;
+    position: relative;
+  }
+
+  .hx-tab::before {
+    content: "";
+    position: absolute;
+    bottom: -1px;
+    left: 50%;
+    width: 0;
+    height: 2px;
+    background: var(--bronze);
+    transition: width 0.25s ease, left 0.25s ease;
+  }
+
+  .hx-tab.active {
+    color: var(--bronze);
+    border-bottom-color: transparent;
+  }
+
+  .hx-tab.active::before {
+    width: 100%;
+    left: 0;
+    box-shadow: 0 0 12px var(--bronze-shadow);
+  }
+
+  .hx-tab:hover:not(.active) { color: var(--text-secondary); }
+  .hx-tab:hover:not(.active)::before { width: 30%; left: 35%; background: var(--text-tertiary); }
+
+  .hx-panel { display: none; }
+  .hx-panel.active { display: block; }
+
+  .hx-section {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    font-weight: 500;
+    color: var(--bronze);
+    margin: 1.75rem 0 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.2em;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+  }
+
+  .hx-section::before {
+    content: "";
+    width: 6px;
+    height: 6px;
+    background: var(--bronze);
+    flex-shrink: 0;
+    transform: rotate(45deg);
+    box-shadow: 0 0 8px var(--bronze-shadow);
+  }
+
+  .hx-section::after {
+    content: "";
+    flex: 1;
+    height: 1px;
+    background: linear-gradient(to right, var(--border-mid), var(--border-thin) 60%, transparent);
+  }
+
+  .hx-sec-sub {
+    font-size: 13px;
+    color: var(--text-secondary);
+    margin: -0.5rem 0 0.85rem;
+    font-weight: 450;
+  }
+
+  .hx-insight {
+    background: var(--bg-primary);
+    border: 1px solid var(--border-thin);
+    border-left: 2px solid;
+    padding: 1.1rem 1.35rem;
+    margin-bottom: 0.5rem;
+    border-radius: 0 var(--radius-md) var(--radius-md) 0;
+    transition: border-color 0.2s, background 0.2s;
+  }
+
+  .hx-insight:hover { background: var(--bg-secondary); }
+
+  .ins-good { border-left-color: var(--bronze); }
+  .ins-warn { border-left-color: var(--bronze-dark); }
+  .ins-bad { border-left-color: var(--bronze-light); background: var(--bg-secondary); }
+  .ins-info { border-left-color: var(--text-tertiary); }
+
+  .hx-ins-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    margin-bottom: 6px;
+    gap: 12px;
+  }
+
+  .hx-ins-title {
+    font-family: var(--font-display);
+    font-size: 17px;
+    font-weight: 500;
+    color: var(--text-primary);
+    letter-spacing: -0.015em;
+  }
+
+  .hx-ins-tag {
+    font-family: var(--font-mono);
+    font-size: 9px;
+    padding: 3px 8px;
+    border: 1px solid var(--border-mid);
+    font-weight: 500;
+    letter-spacing: 0.14em;
+    flex-shrink: 0;
+    text-transform: uppercase;
+    color: var(--text-secondary);
+  }
+
+  .ins-good .hx-ins-tag { background: var(--bronze); color: var(--accent-text); border-color: var(--bronze); }
+  .ins-bad .hx-ins-tag { border-color: var(--bronze-light); color: var(--bronze-light); }
+
+  .hx-ins-body {
+    font-size: 13px;
+    color: var(--text-secondary);
+    line-height: 1.65;
+    margin: 0;
+    font-weight: 450;
+  }
+
+  .hx-stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 1px;
+    background: var(--border-thin);
+    border: 1px solid var(--border-thin);
+    margin-bottom: 1.25rem;
+  }
+
+  .hx-stat {
+    background: var(--bg-primary);
+    padding: 1.2rem 1.1rem;
+    position: relative;
+    transition: background 0.2s;
+  }
+
+  .hx-stat::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 0;
+    height: 2px;
+    background: var(--bronze);
+    transition: width 0.3s ease;
+  }
+
+  .hx-stat:hover { background: var(--bg-secondary); }
+  .hx-stat:hover::before { width: 100%; }
+
+  .hx-sl {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    color: var(--text-tertiary);
+    font-weight: 400;
+    margin: 0 0 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.18em;
+  }
+
+  .hx-sv {
+    font-family: var(--font-display);
+    font-size: 32px;
+    font-weight: 400;
+    color: var(--text-primary);
+    margin: 0;
+    line-height: 1;
+    letter-spacing: -0.025em;
+  }
+
+  .hx-ss {
+    font-size: 12px;
+    color: var(--text-tertiary);
+    margin: 8px 0 0;
+    font-weight: 400;
+  }
+
+  .hx-day {
+    background: var(--bg-primary);
+    border: 1px solid var(--border-thin);
+    border-radius: var(--radius-md);
+    padding: 1.1rem 1.35rem;
+    margin-bottom: 0.5rem;
+    transition: border-color 0.2s, padding-left 0.25s ease;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .hx-day::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 0;
+    background: var(--bronze);
+    transition: width 0.25s ease;
+  }
+
+  .hx-day:hover {
+    border-color: var(--border-mid);
+    padding-left: 1.6rem;
+  }
+  .hx-day:hover::before { width: 3px; }
+
+  .hx-dh {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 0.5rem;
+  }
+
+  .hx-dn {
+    font-family: var(--font-display);
+    font-size: 18px;
+    font-weight: 500;
+    color: var(--text-primary);
+    letter-spacing: -0.015em;
+  }
+
+  .hx-dt {
+    font-family: var(--font-mono);
+    font-size: 9px;
+    padding: 4px 9px;
+    border: 1px solid var(--border-mid);
+    font-weight: 500;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--text-secondary);
+  }
+
+  .tg-lift { background: var(--bronze); color: var(--accent-text); border-color: var(--bronze); }
+  .tg-hyrox { background: var(--bronze-dark); color: var(--text-primary); border-color: var(--bronze-dark); }
+  .tg-z2 { background: transparent; color: var(--bronze-light); border-color: var(--border-strong); }
+  .tg-rest { background: transparent; color: var(--text-tertiary); border-color: var(--border-thin); }
+
+  .hx-dd {
+    font-size: 13px;
+    color: var(--text-secondary);
+    line-height: 1.65;
+    margin: 0;
+    font-weight: 450;
+  }
+
+  .hx-stations {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 1px;
+    background: var(--border-thin);
+    border: 1px solid var(--border-thin);
+  }
+
+  .hx-st {
+    background: var(--bg-primary);
+    padding: 1.2rem 1.1rem;
+    position: relative;
+    transition: background 0.2s;
+  }
+
+  .hx-st::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 0;
+    height: 2px;
+    background: var(--bronze);
+    transition: width 0.3s ease;
+  }
+
+  .hx-st:hover { background: var(--bg-secondary); }
+  .hx-st:hover::before { width: 100%; }
+
+  .hx-stn {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    color: var(--text-tertiary);
+    margin: 0 0 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.18em;
+    font-weight: 400;
+  }
+
+  .hx-stv {
+    font-family: var(--font-display);
+    font-size: 26px;
+    font-weight: 500;
+    color: var(--text-primary);
+    margin: 0;
+    letter-spacing: -0.025em;
+    line-height: 1;
+  }
+
+  .hx-std {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--bronze-dark);
+    margin: 8px 0 0;
+    font-weight: 400;
+  }
+
+  .hx-row {
+    display: flex;
+    gap: 12px;
+    align-items: end;
+    margin-bottom: 0.75rem;
+    flex-wrap: wrap;
+  }
+
+  .hx-ig {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 7px;
+    min-width: 110px;
+  }
+
+  .hx-il {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    color: var(--text-tertiary);
+    font-weight: 400;
+    text-transform: uppercase;
+    letter-spacing: 0.16em;
+  }
+
+  input[type="number"], input[type="text"], select {
+    background: var(--bg-secondary);
+    border: 1px solid var(--border-thin);
+    color: var(--text-primary);
+    padding: 10px 14px;
+    border-radius: var(--radius-sm);
+    font-size: 14px;
+    font-family: var(--font-mono);
+    font-weight: 400;
+    height: 42px;
+    transition: border-color 0.2s, background 0.2s;
+    -webkit-appearance: none;
+    appearance: none;
+  }
+
+  select {
+    background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3e%3cpath fill='%23d4a86d' d='M0 0l5 6 5-6z'/%3e%3c/svg%3e");
+    background-repeat: no-repeat;
+    background-position: right 14px center;
+    padding-right: 36px;
+    cursor: pointer;
+  }
+
+  input[type="number"]:focus, input[type="text"]:focus, select:focus {
+    outline: none;
+    border-color: var(--bronze);
+    background: var(--bg-tertiary);
+  }
+
+  input[type="number"]:hover, input[type="text"]:hover, select:hover {
+    border-color: var(--border-mid);
+  }
+
+  .hx-checks {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    gap: 6px;
+    margin: 0.5rem 0 1rem;
+  }
+
+  .hx-ck {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: var(--bg-secondary);
+    border: 1px solid var(--border-thin);
+    padding: 11px 14px;
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    font-size: 13px;
+    color: var(--text-secondary);
+    transition: border-color 0.2s, color 0.2s;
+  }
+
+  .hx-ck:hover { border-color: var(--border-mid); color: var(--text-primary); }
+  .hx-ck input { margin: 0; accent-color: var(--bronze); }
+
+  .hx-le {
+    background: var(--bg-primary);
+    border: 1px solid var(--border-thin);
+    border-radius: var(--radius-sm);
+    padding: 12px 16px;
+    margin-bottom: 4px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 13px;
+    gap: 8px;
+  }
+
+  .hx-le-main { color: var(--text-primary); }
+  .hx-le-main strong { font-weight: 600; color: var(--bronze-light); }
+
+  .hx-ld {
+    font-family: var(--font-mono);
+    color: var(--text-tertiary);
+    font-size: 11px;
+    flex-shrink: 0;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+  }
+
+  .hx-empty {
+    font-family: var(--font-display);
+    font-style: italic;
+    font-size: 14px;
+    color: var(--text-tertiary);
+    text-align: center;
+    padding: 2rem 1rem;
+    border: 1px dashed var(--border-thin);
+    border-radius: var(--radius-md);
+    font-weight: 300;
+  }
+
+  .hx-acts {
+    display: flex;
+    gap: 10px;
+    margin-top: 0.75rem;
+    flex-wrap: wrap;
+  }
+
+  .hx-bp {
+    background: var(--bronze);
+    color: var(--accent-text);
+    border: 1px solid var(--bronze);
+    padding: 12px 28px 14px;
+    border-radius: var(--radius-sm);
+    font-size: 11px;
+    font-weight: 600;
+    cursor: pointer;
+    font-family: var(--font-sans);
+    text-transform: uppercase;
+    letter-spacing: 0.14em;
+    transition: background 0.2s, transform 0.05s, border-color 0.2s, box-shadow 0.2s;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .hx-bp::after {
+    content: "";
+    position: absolute;
+    bottom: 4px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 24px;
+    height: 1px;
+    background: var(--accent-text);
+    opacity: 0.5;
+    transition: width 0.25s ease, opacity 0.25s ease;
+  }
+
+  .hx-bp:hover {
+    background: var(--bronze-light);
+    border-color: var(--bronze-light);
+    box-shadow: 0 0 24px var(--bronze-shadow);
+  }
+
+  .hx-bp:hover::after { width: 40px; opacity: 0.8; }
+  .hx-bp:active { transform: scale(0.98); }
+
+  .hx-mini {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    color: var(--text-tertiary);
+    margin-top: 0.85rem;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    font-weight: 400;
+  }
+
+  .hx-canvas {
+    position: relative;
+    width: 100%;
+    height: 200px;
+  }
+
+  .hx-phase {
+    background: var(--bg-primary);
+    border: 1px solid var(--border-thin);
+    padding: 1.2rem 1.4rem;
+    margin-bottom: 0.5rem;
+    position: relative;
+    overflow: hidden;
+    border-radius: var(--radius-md);
+  }
+
+  .hx-phase::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 2px;
+  }
+
+  .ph-base::before { background: var(--bronze-muted); }
+  .ph-build::before { background: var(--bronze-dark); }
+  .ph-peak::before { background: var(--bronze); }
+  .ph-taper::before { background: var(--bronze-light); }
+
+  .hx-ph-h {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    margin-bottom: 8px;
+    padding-left: 10px;
+  }
+
+  .hx-ph-n {
+    font-family: var(--font-display);
+    font-size: 19px;
+    font-weight: 500;
+    color: var(--text-primary);
+    letter-spacing: -0.02em;
+  }
+
+  .hx-ph-w {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--bronze);
+    text-transform: uppercase;
+    letter-spacing: 0.14em;
+    font-weight: 500;
+  }
+
+  .hx-ph-d {
+    font-size: 13px;
+    color: var(--text-secondary);
+    line-height: 1.65;
+    margin: 0;
+    padding-left: 10px;
+    font-weight: 450;
+  }
+
+  .hx-mix {
+    display: flex;
+    height: 38px;
+    border: 1px solid var(--border-thin);
+    overflow: hidden;
+    margin: 0.5rem 0;
+    background: var(--bg-secondary);
+    border-radius: var(--radius-sm);
+  }
+
+  .hx-mix-seg {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: var(--font-mono);
+    font-size: 11px;
+    font-weight: 600;
+    transition: width 0.3s;
+    min-width: 0;
+    letter-spacing: 0.06em;
+  }
+
+  .mix-easy { background: var(--bronze); color: var(--accent-text); }
+  .mix-mod { background: var(--bronze-dark); color: var(--text-primary); }
+  .mix-hard { background: var(--bg-tertiary); color: var(--bronze-light); border-left: 1px solid var(--border-mid); border-right: 1px solid var(--border-mid); }
+
+  .hx-mix-leg {
+    display: flex;
+    gap: 18px;
+    font-family: var(--font-mono);
+    font-size: 10px;
+    color: var(--text-tertiary);
+    margin-top: 10px;
+    flex-wrap: wrap;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+  }
+
+  .hx-mix-dot {
+    width: 12px;
+    height: 12px;
+    display: inline-block;
+    margin-right: 8px;
+    vertical-align: middle;
+    border: 1px solid var(--border-thin);
+  }
+
+  .hx-prog-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1px;
+    background: var(--border-thin);
+    border: 1px solid var(--border-thin);
+    margin-bottom: 1rem;
+  }
+
+  .hx-prog-card {
+    background: var(--bg-primary);
+    padding: 1.2rem 1.35rem;
+    position: relative;
+    transition: background 0.2s;
+  }
+
+  .hx-prog-card::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 0;
+    height: 2px;
+    background: var(--bronze);
+    transition: width 0.3s ease;
+  }
+
+  .hx-prog-card:hover { background: var(--bg-secondary); }
+  .hx-prog-card:hover::before { width: 100%; }
+
+  .hx-prog-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    margin-bottom: 0.65rem;
+    gap: 8px;
+  }
+
+  .hx-prog-lbl {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    color: var(--text-tertiary);
+    font-weight: 400;
+    text-transform: uppercase;
+    letter-spacing: 0.18em;
+  }
+
+  .hx-prog-delta {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    font-weight: 500;
+    padding: 3px 8px;
+    border: 1px solid var(--border-thin);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+  }
+
+  .delta-up { background: var(--bronze); color: var(--accent-text); border-color: var(--bronze); }
+  .delta-down { background: transparent; color: var(--bronze-light); border-color: var(--bronze-light); }
+  .delta-flat { color: var(--text-tertiary); }
+
+  .hx-prog-canvas {
+    position: relative;
+    width: 100%;
+    height: 90px;
+  }
+
+  .hx-footer {
+    margin-top: 2.5rem;
+    padding-top: 1.25rem;
+    border-top: 1px solid var(--border-thin);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+
+  .hx-footer-text {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    color: var(--text-tertiary);
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+  }
+
+  .hx-footer-actions {
+    display: flex;
+    gap: 4px;
+    flex-wrap: wrap;
+  }
+
+  .hx-link {
+    background: transparent;
+    border: 1px solid var(--border-thin);
+    color: var(--text-secondary);
+    font-size: 10px;
+    cursor: pointer;
+    padding: 7px 13px 9px;
+    font-family: var(--font-mono);
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    font-weight: 500;
+    border-radius: var(--radius-sm);
+    transition: all 0.2s;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .hx-link::after {
+    content: "";
+    position: absolute;
+    bottom: 3px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 0;
+    height: 1px;
+    background: var(--bronze);
+    transition: width 0.25s ease;
+  }
+
+  .hx-link:hover { color: var(--bronze); border-color: var(--border-mid); }
+  .hx-link:hover::after { width: 18px; }
+
+  @media (max-width: 600px) {
+    .hx-prog-grid { grid-template-columns: 1fr; }
+    .hx-cd { grid-template-columns: repeat(2, 1fr); }
+    .hx-app { padding: 1.25rem 0.75rem 3rem; }
+    .hx-hero { padding: 1.5rem 1.25rem 1.25rem; }
+    .hx-title { font-size: 40px; }
+    .hx-cd-n { font-size: 28px; }
+  }
+</style>
+</head>
+<body>
+<div class="hx-app">
+  <div class="hx-hero">
+    <p class="hx-eye"><span class="hx-eye-mark">//</span>Operation October<span class="hx-eye-mark">//</span></p>
+    <h1 class="hx-title">HYROX <em>command</em><br>center.</h1>
+    <p class="hx-sub">Hybrid build. Maintain physique. Drop the heart rate. Peak by race day.</p>
+    <div class="hx-cd">
+      <div class="hx-cd-c"><div class="hx-cd-n" id="cd-weeks">22</div><div class="hx-cd-l">Weeks out</div></div>
+      <div class="hx-cd-c"><div class="hx-cd-n" id="cd-sessions">0</div><div class="hx-cd-l">Total sessions</div></div>
+      <div class="hx-cd-c"><div class="hx-cd-n" id="cd-z2">0</div><div class="hx-cd-l">Zone 2 hours</div></div>
+      <div class="hx-cd-c"><div class="hx-cd-n" id="cd-streak">0</div><div class="hx-cd-l">Day streak</div></div>
+    </div>
+  </div>
+
+  <div class="hx-tabs">
+    <button class="hx-tab active" data-panel="dash">Dashboard</button>
+    <button class="hx-tab" data-panel="schedule">Weekly plan</button>
+    <button class="hx-tab" data-panel="phases">Phases</button>
+    <button class="hx-tab" data-panel="weights">Race weights</button>
+    <button class="hx-tab" data-panel="track">Log session</button>
+    <button class="hx-tab" data-panel="hrv">HRV</button>
+  </div>
+
+  <div class="hx-panel active" data-panel="dash">
+    <div class="hx-section" style="margin-top: 0;">This week at a glance</div>
+    <div class="hx-stats">
+      <div class="hx-stat"><p class="hx-sl">Sessions</p><p class="hx-sv" id="d-sess">0/6</p><p class="hx-ss" id="d-sess-sub">No sessions yet</p></div>
+      <div class="hx-stat"><p class="hx-sl">Zone 2 vol</p><p class="hx-sv" id="d-z2">0h</p><p class="hx-ss" id="d-z2-sub">Target: 3-5h</p></div>
+      <div class="hx-stat"><p class="hx-sl">Avg RPE</p><p class="hx-sv" id="d-rpe">—</p><p class="hx-ss" id="d-rpe-sub">Target: 5-7</p></div>
+      <div class="hx-stat"><p class="hx-sl">Total time</p><p class="hx-sv" id="d-time">0h</p><p class="hx-ss">All training</p></div>
+    </div>
+
+    <div class="hx-section">Intensity distribution</div>
+    <p class="hx-sec-sub">Your week vs. the 80/20 target. Easy work should dominate.</p>
+    <div class="hx-mix" id="mix-bar">
+      <div class="hx-mix-seg mix-easy" style="width: 100%;">No data</div>
+    </div>
+    <div class="hx-mix-leg">
+      <span><span class="hx-mix-dot" style="background: #d4a86d;"></span>Easy / Z2 (≥80%)</span>
+      <span><span class="hx-mix-dot" style="background: #9c7846;"></span>Moderate</span>
+      <span><span class="hx-mix-dot" style="background: #232120;"></span>Hard (≤20%)</span>
+    </div>
+
+    <div class="hx-section">Progress signals</div>
+    <p class="hx-sec-sub">Trends from what you've logged. Last 4 weeks.</p>
+    <div class="hx-prog-grid">
+      <div class="hx-prog-card">
+        <div class="hx-prog-head"><div class="hx-prog-lbl">Weekly volume</div><span class="hx-prog-delta delta-flat" id="dl-vol">—</span></div>
+        <div class="hx-prog-canvas"><canvas id="ch-vol"></canvas></div>
+      </div>
+      <div class="hx-prog-card">
+        <div class="hx-prog-head"><div class="hx-prog-lbl">Zone 2 hours</div><span class="hx-prog-delta delta-flat" id="dl-z2">—</span></div>
+        <div class="hx-prog-canvas"><canvas id="ch-z2"></canvas></div>
+      </div>
+      <div class="hx-prog-card">
+        <div class="hx-prog-head"><div class="hx-prog-lbl">HRV trend</div><span class="hx-prog-delta delta-flat" id="dl-hrv">—</span></div>
+        <div class="hx-prog-canvas" id="ch-hrv-wrap"><canvas id="ch-hrv-mini"></canvas></div>
+      </div>
+      <div class="hx-prog-card">
+        <div class="hx-prog-head"><div class="hx-prog-lbl">Recovery score</div><span class="hx-prog-delta delta-flat" id="dl-rec">—</span></div>
+        <div class="hx-prog-canvas" id="ch-rec-wrap"><canvas id="ch-rec"></canvas></div>
+      </div>
+    </div>
+
+    <div class="hx-section">Insights</div>
+    <div id="insights"><div class="hx-empty">Log a few sessions to unlock personalized insights about your volume, intensity, and recovery balance.</div></div>
+  </div>
+
+  <div class="hx-panel" data-panel="schedule">
+    <div class="hx-day"><div class="hx-dh"><div class="hx-dn">Monday</div><span class="hx-dt tg-lift">Lift + Z2</span></div><p class="hx-dd">Heavy upper push/pull. Bench, weighted pull-ups, OHP, rows, biceps and triceps accessories. Evening: 45–60 min Zone 2 bike or easy run.</p></div>
+    <div class="hx-day"><div class="hx-dh"><div class="hx-dn">Tuesday</div><span class="hx-dt tg-hyrox">Hyrox mixed</span></div><p class="hx-dd">4–6 rounds: 800m run + 1 station (rotate wall balls, burpee broad jumps, sled push, ski erg, row). Race-pace simulation of compromised running.</p></div>
+    <div class="hx-day"><div class="hx-dh"><div class="hx-dn">Wednesday</div><span class="hx-dt tg-lift">Lower lift</span></div><p class="hx-dd">Squat or deadlift focus. Lunges, RDLs or hip thrusts, calves, core. Optional 30 min Zone 2 walk or bike after.</p></div>
+    <div class="hx-day"><div class="hx-dh"><div class="hx-dn">Thursday</div><span class="hx-dt tg-z2">Long Zone 2</span></div><p class="hx-dd">60–90 min steady aerobic work. Run or bike, conversational pace. Talk test: full sentences with effort. The big aerobic stimulus of the week.</p></div>
+    <div class="hx-day"><div class="hx-dh"><div class="hx-dn">Friday</div><span class="hx-dt tg-lift">Upper lift</span></div><p class="hx-dd">Different exercise selection from Monday. Incline pressing, chin-ups, lateral and rear delts, direct arm work. Higher rep ranges (8–15) for hypertrophy.</p></div>
+    <div class="hx-day"><div class="hx-dh"><div class="hx-dn">Saturday</div><span class="hx-dt tg-hyrox">Strength endurance</span></div><p class="hx-dd">Implement grind. Sled push intervals, sandbag lunges for distance, farmers carries, wall ball volume. Heavier and slower than Tuesday.</p></div>
+    <div class="hx-day"><div class="hx-dh"><div class="hx-dn">Sunday</div><span class="hx-dt tg-rest">Rest</span></div><p class="hx-dd">Full rest, or 30–45 min very easy walk or bike if you feel like moving. No structured work.</p></div>
+  </div>
+
+  <div class="hx-panel" data-panel="phases">
+    <div class="hx-phase ph-base"><div class="hx-ph-h"><div class="hx-ph-n">Base building</div><div class="hx-ph-w">May – June</div></div><p class="hx-ph-d">Build aerobic engine. Maximize Zone 2 volume (3–5+ hrs/wk), establish lifting baseline, get comfortable with HYROX implements. 80/20 intensity split. Track HRV trend.</p></div>
+    <div class="hx-phase ph-build"><div class="hx-ph-h"><div class="hx-ph-n">Build phase</div><div class="hx-ph-w">July – August</div></div><p class="hx-ph-d">Layer in race-specific intensity. Tuesday sessions get sharper. Add tempo and threshold work to long runs. Lifting volume holds; intensity stays high. Deload every 4th week.</p></div>
+    <div class="hx-phase ph-peak"><div class="hx-ph-h"><div class="hx-ph-n">Race specificity</div><div class="hx-ph-w">September</div></div><p class="hx-ph-d">HYROX simulations in full. Practice exact transitions, pacing strategy with your partner. Lifting drops slightly to make room for race-pace work. This is when fitness sharpens.</p></div>
+    <div class="hx-phase ph-taper"><div class="hx-ph-h"><div class="hx-ph-n">Taper</div><div class="hx-ph-w">Final 7–10 days</div></div><p class="hx-ph-d">Volume drops 40–60%. Intensity stays (short, sharp). Sleep maxes out, nutrition dialed. Do not test fitness in taper week. Trust the work.</p></div>
+  </div>
+
+  <div class="hx-panel" data-panel="weights">
+    <p class="hx-mini" style="margin-top: 0; margin-bottom: 0.85rem;">Men's doubles · ages 16–39 · both partners use the same loads</p>
+    <div class="hx-stations">
+      <div class="hx-st"><p class="hx-stn">Ski erg</p><p class="hx-stv">1000m</p><p class="hx-std">No load</p></div>
+      <div class="hx-st"><p class="hx-stn">Sled push</p><p class="hx-stv">152 kg</p><p class="hx-std">50m · 335 lb</p></div>
+      <div class="hx-st"><p class="hx-stn">Sled pull</p><p class="hx-stv">103 kg</p><p class="hx-std">50m · 227 lb</p></div>
+      <div class="hx-st"><p class="hx-stn">Burpee bj</p><p class="hx-stv">80m</p><p class="hx-std">Bodyweight</p></div>
+      <div class="hx-st"><p class="hx-stn">Row</p><p class="hx-stv">1000m</p><p class="hx-std">No load</p></div>
+      <div class="hx-st"><p class="hx-stn">Farmers</p><p class="hx-stv">2 × 24kg</p><p class="hx-std">200m · 53 lb ea</p></div>
+      <div class="hx-st"><p class="hx-stn">Sandbag</p><p class="hx-stv">20 kg</p><p class="hx-std">100m · 44 lb</p></div>
+      <div class="hx-st"><p class="hx-stn">Wall balls</p><p class="hx-stv">100x</p><p class="hx-std">6kg · 10ft</p></div>
+    </div>
+    <p class="hx-mini">Verify exact specs in your venue's athlete briefing closer to race day.</p>
+  </div>
+
+  <div class="hx-panel" data-panel="track">
+    <div class="hx-section" style="margin-top: 0;">Log a session</div>
+    <div class="hx-row">
+      <div class="hx-ig">
+        <label class="hx-il" for="sess-type">Type</label>
+        <select id="sess-type">
+          <option value="upper-lift">Upper lift</option>
+          <option value="lower-lift">Lower lift</option>
+          <option value="hyrox-mixed">Hyrox mixed-modal</option>
+          <option value="hyrox-strength">Hyrox strength endurance</option>
+          <option value="zone2">Zone 2</option>
+          <option value="other">Other</option>
+        </select>
+      </div>
+      <div class="hx-ig">
+        <label class="hx-il" for="sess-dur">Duration (min)</label>
+        <input type="number" id="sess-dur" value="60" min="1" max="300" step="1" />
+      </div>
+      <div class="hx-ig">
+        <label class="hx-il" for="sess-rpe">RPE</label>
+        <select id="sess-rpe">
+          <option value="3">3 - Very easy</option>
+          <option value="5">5 - Moderate</option>
+          <option value="7" selected>7 - Hard</option>
+          <option value="9">9 - Very hard</option>
+          <option value="10">10 - Max</option>
+        </select>
+      </div>
+    </div>
+    <div class="hx-acts">
+      <button class="hx-bp" id="log-btn">Log session</button>
+    </div>
+
+    <div class="hx-section">Recent sessions</div>
+    <div id="log-list"></div>
+  </div>
+
+  <div class="hx-panel" data-panel="hrv">
+    <div class="hx-stats">
+      <div class="hx-stat"><p class="hx-sl">7-day avg</p><p class="hx-sv" id="hrv-7">—</p><p class="hx-ss">Rolling baseline</p></div>
+      <div class="hx-stat"><p class="hx-sl">Latest</p><p class="hx-sv" id="hrv-latest">—</p><p class="hx-ss">Most recent ms</p></div>
+      <div class="hx-stat"><p class="hx-sl">Trend</p><p class="hx-sv" id="hrv-trend">—</p><p class="hx-ss">vs last week</p></div>
+    </div>
+
+    <div class="hx-section">Morning HRV</div>
+    <div class="hx-row">
+      <div class="hx-ig">
+        <label class="hx-il" for="hrv-val">Reading (ms)</label>
+        <input type="number" id="hrv-val" placeholder="52" min="10" max="200" step="1" />
+      </div>
+      <div class="hx-ig">
+        <label class="hx-il" for="hrv-sleep">Sleep (hrs)</label>
+        <input type="number" id="hrv-sleep" value="7.5" step="0.5" min="0" max="14" />
+      </div>
+      <div class="hx-ig">
+        <label class="hx-il" for="hrv-stress">Stress (1-10)</label>
+        <input type="number" id="hrv-stress" value="5" min="1" max="10" step="1" />
+      </div>
+    </div>
+
+    <div class="hx-checks">
+      <label class="hx-ck"><input type="checkbox" id="f-alc"> Alcohol last night</label>
+      <label class="hx-ck"><input type="checkbox" id="f-late"> Late meal</label>
+      <label class="hx-ck"><input type="checkbox" id="f-trv"> Travel / poor sleep</label>
+    </div>
+
+    <div class="hx-acts">
+      <button class="hx-bp" id="hrv-btn">Save reading</button>
+    </div>
+
+    <div class="hx-section">Recent readings</div>
+    <div id="hrv-list"></div>
+  </div>
+
+  <div class="hx-footer">
+    <div class="hx-footer-text">Data saved locally · <span id="race-display">Race: Oct 15, 2026</span></div>
+    <div class="hx-footer-actions">
+      <button class="hx-link" id="set-race">Set date</button>
+      <button class="hx-link" id="export-btn">Export</button>
+      <button class="hx-link" id="import-btn">Import</button>
+      <button class="hx-link" id="reset-btn">Reset</button>
+      <input type="file" id="import-file" accept=".json" style="display: none;" />
+    </div>
+  </div>
+</div>
+
+<script>
+(function() {
+  const SK = { sessions: 'hx-sessions', hrv: 'hx-hrv', race: 'hx-race-date' };
+  let charts = {};
+
+  function getRaceDate() {
+    const stored = localStorage.getItem(SK.race);
+    return stored ? new Date(stored) : new Date('2026-10-15');
+  }
+
+  function load(key) {
+    try { const v = localStorage.getItem(key); return v ? JSON.parse(v) : []; } catch { return []; }
+  }
+  function save(key, val) {
+    try { localStorage.setItem(key, JSON.stringify(val)); } catch(e) { console.error(e); alert('Failed to save. Browser storage may be full.'); }
+  }
+
+  const tabs = document.querySelectorAll('.hx-tab');
+  const panels = document.querySelectorAll('.hx-panel');
+  tabs.forEach(t => t.addEventListener('click', () => {
+    tabs.forEach(x => x.classList.remove('active'));
+    panels.forEach(x => x.classList.remove('active'));
+    t.classList.add('active');
+    document.querySelector('.hx-panel[data-panel="' + t.dataset.panel + '"]').classList.add('active');
+  }));
+
+  function updateCountdown() {
+    const race = getRaceDate();
+    const weeksOut = Math.max(0, Math.round((race - new Date()) / (1000 * 60 * 60 * 24 * 7)));
+    document.getElementById('cd-weeks').textContent = weeksOut;
+    document.getElementById('race-display').textContent = 'Race: ' + race.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+  }
+
+  function startOfWeek() {
+    const d = new Date(); d.setHours(0,0,0,0);
+    const day = d.getDay(); const diff = d.getDate() - (day === 0 ? 6 : day - 1);
+    return new Date(d.setDate(diff));
+  }
+
+  function fmtDate(iso) {
+    const d = new Date(iso);
+    return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+  }
+
+  function calcStreak(sessions) {
+    if (!sessions.length) return 0;
+    const days = new Set(sessions.map(s => new Date(s.date).toDateString()));
+    let streak = 0;
+    let cur = new Date(); cur.setHours(0,0,0,0);
+    while (days.has(cur.toDateString())) { streak++; cur.setDate(cur.getDate() - 1); }
+    return streak;
+  }
+
+  function rpeBucket(rpe) {
+    if (rpe <= 4) return 'easy';
+    if (rpe <= 7) return 'moderate';
+    return 'hard';
+  }
+
+  function generateInsights(sessions, wkSessions, hrv) {
+    const insights = [];
+    if (!wkSessions.length && !sessions.length) return insights;
+
+    const wkMin = wkSessions.reduce((a,b) => a + b.dur, 0);
+    const z2Min = wkSessions.filter(s => s.type === 'zone2').reduce((a,b) => a + b.dur, 0);
+    const z2Hrs = z2Min / 60;
+    const hardCount = wkSessions.filter(s => s.rpe >= 8).length;
+    const easyMin = wkSessions.filter(s => rpeBucket(s.rpe) === 'easy').reduce((a,b) => a + b.dur, 0);
+    const hardMin = wkSessions.filter(s => rpeBucket(s.rpe) === 'hard').reduce((a,b) => a + b.dur, 0);
+    const easyPct = wkMin ? (easyMin / wkMin) * 100 : 0;
+    const hardPct = wkMin ? (hardMin / wkMin) * 100 : 0;
+    const sessCount = wkSessions.length;
+
+    if (sessCount >= 5 && sessCount <= 6) {
+      insights.push({ type: 'good', tag: 'On point', title: 'Session frequency is dialed', body: sessCount + ' sessions this week sits right in your target zone (5-6). Volume cadence is sustainable.' });
+    } else if (sessCount > 6) {
+      insights.push({ type: 'bad', tag: 'Too high', title: 'Session count is excessive', body: sessCount + ' sessions in one week leaves little room for adaptation. Drop to 5-6 unless you\'re feeling fully recovered.' });
+    } else if (sessCount >= 3 && sessCount < 5) {
+      insights.push({ type: 'warn', tag: 'Below target', title: 'Frequency is light', body: sessCount + ' sessions this week. Aim for 5-6 to hit the planned hybrid stimulus, or chalk this up as a deload week.' });
+    } else if (sessCount > 0 && sessCount < 3) {
+      insights.push({ type: 'warn', tag: 'Low volume', title: 'Few sessions logged', body: 'Only ' + sessCount + ' session' + (sessCount === 1 ? '' : 's') + ' this week. Either log more, or consider whether life stress means this is the right call.' });
+    }
+
+    if (z2Hrs >= 3 && z2Hrs <= 5) {
+      insights.push({ type: 'good', tag: 'On point', title: 'Zone 2 volume is in the sweet spot', body: z2Hrs.toFixed(1) + 'h of Zone 2 this week — exactly the dose that drives mitochondrial adaptation without crushing recovery.' });
+    } else if (z2Hrs > 5) {
+      insights.push({ type: 'info', tag: 'Aggressive', title: 'High Zone 2 volume', body: z2Hrs.toFixed(1) + 'h is on the high end. Productive if HRV holds, but watch for accumulating fatigue. Make sure you\'re eating enough.' });
+    } else if (z2Hrs > 0 && z2Hrs < 3) {
+      insights.push({ type: 'warn', tag: 'Below target', title: 'Zone 2 volume is light', body: 'Only ' + z2Hrs.toFixed(1) + 'h logged. Aerobic adaptations need 3-5h/week minimum. This is the highest-leverage thing for lowering your heart rate.' });
+    } else if (sessCount > 0 && z2Hrs === 0) {
+      insights.push({ type: 'bad', tag: 'Missing', title: 'No Zone 2 work this week', body: 'Zone 2 is the engine-builder. If your goal is lower heart rate and longer endurance, this is non-negotiable. Add a long easy session.' });
+    }
+
+    if (wkMin > 0) {
+      if (easyPct >= 70 && hardPct <= 25) {
+        insights.push({ type: 'good', tag: 'On point', title: 'Intensity distribution is sound', body: Math.round(easyPct) + '% easy, ' + Math.round(hardPct) + '% hard. You\'re respecting the 80/20 principle, which is rare.' });
+      } else if (hardPct > 30) {
+        insights.push({ type: 'bad', tag: 'Too intense', title: 'Too much hard work', body: Math.round(hardPct) + '% of your time is at high RPE. This is the classic overtraining recipe — accumulating intensity without recovery. Add easy work or cut a hard session.' });
+      } else if (easyPct < 50 && hardPct > 0) {
+        insights.push({ type: 'warn', tag: 'Tilted hard', title: 'Not enough easy work', body: 'Only ' + Math.round(easyPct) + '% of training is easy. The "all medium" zone burns the candle at both ends. Make easy days actually easy.' });
+      }
+    }
+
+    if (hardCount >= 4) {
+      insights.push({ type: 'bad', tag: 'Recovery risk', title: 'Too many hard sessions', body: hardCount + ' sessions at RPE 8+ this week. Your nervous system needs more recovery between hard efforts. Cap hard sessions at 2-3.' });
+    }
+
+    if (hrv && hrv.length >= 7) {
+      const last7 = hrv.slice(-7);
+      const prev7 = hrv.slice(-14, -7);
+      if (prev7.length >= 5) {
+        const a7 = last7.reduce((a,b) => a + b.val, 0) / last7.length;
+        const aP = prev7.reduce((a,b) => a + b.val, 0) / prev7.length;
+        const diff = a7 - aP;
+        if (diff >= 3) {
+          insights.push({ type: 'good', tag: 'Trending up', title: 'HRV is responding well', body: '7-day average is up ' + Math.round(diff) + ' ms vs. last week. Whatever you\'re doing for recovery is working — keep it.' });
+        } else if (diff <= -4) {
+          insights.push({ type: 'bad', tag: 'Recovery debt', title: 'HRV is dropping', body: '7-day average dropped ' + Math.abs(Math.round(diff)) + ' ms. Either training load is too high, sleep is short, or stress is up. Pull back this week.' });
+        }
+      }
+    }
+
+    if (!insights.length && sessCount > 0) {
+      insights.push({ type: 'info', tag: 'Steady', title: 'Training is balanced', body: 'Nothing standing out as off. Keep logging — patterns get clearer with 2-3 weeks of data.' });
+    }
+
+    return insights;
+  }
+
+  function renderInsights(items) {
+    const el = document.getElementById('insights');
+    if (!items.length) {
+      el.innerHTML = '<div class="hx-empty">Log a few sessions to unlock personalized insights about your volume, intensity, and recovery balance.</div>';
+      return;
+    }
+    el.innerHTML = items.map(i => '<div class="hx-insight ins-' + i.type + '"><div class="hx-ins-head"><div class="hx-ins-title">' + i.title + '</div><span class="hx-ins-tag">' + i.tag + '</span></div><p class="hx-ins-body">' + i.body + '</p></div>').join('');
+  }
+
+  function renderMixBar(wkSessions) {
+    const bar = document.getElementById('mix-bar');
+    if (!wkSessions.length) {
+      bar.innerHTML = '<div class="hx-mix-seg mix-easy" style="width: 100%;">No data</div>';
+      return;
+    }
+    const buckets = { easy: 0, moderate: 0, hard: 0 };
+    wkSessions.forEach(s => { buckets[rpeBucket(s.rpe)] += s.dur; });
+    const total = buckets.easy + buckets.moderate + buckets.hard;
+    if (!total) { bar.innerHTML = '<div class="hx-mix-seg mix-easy" style="width: 100%;">No data</div>'; return; }
+    const eP = (buckets.easy / total * 100);
+    const mP = (buckets.moderate / total * 100);
+    const hP = (buckets.hard / total * 100);
+    let html = '';
+    if (eP > 0) html += '<div class="hx-mix-seg mix-easy" style="width: ' + eP + '%;">' + Math.round(eP) + '%</div>';
+    if (mP > 0) html += '<div class="hx-mix-seg mix-mod" style="width: ' + mP + '%;">' + Math.round(mP) + '%</div>';
+    if (hP > 0) html += '<div class="hx-mix-seg mix-hard" style="width: ' + hP + '%;">' + Math.round(hP) + '%</div>';
+    bar.innerHTML = html;
+  }
+
+  function getWeeklyBuckets(items, dateField, valueFn, weeks) {
+    const buckets = [];
+    const today = new Date(); today.setHours(0,0,0,0);
+    for (let i = weeks - 1; i >= 0; i--) {
+      const wkStart = new Date(today);
+      wkStart.setDate(wkStart.getDate() - today.getDay() + 1 - (i * 7));
+      if (today.getDay() === 0) wkStart.setDate(wkStart.getDate() - 7);
+      wkStart.setHours(0,0,0,0);
+      const wkEnd = new Date(wkStart); wkEnd.setDate(wkEnd.getDate() + 7);
+      const inWeek = items.filter(it => { const d = new Date(it[dateField]); return d >= wkStart && d < wkEnd; });
+      buckets.push({ label: fmtDate(wkStart), value: valueFn(inWeek) });
+    }
+    return buckets;
+  }
+
+  function setDelta(elId, current, prev, opts) {
+    opts = opts || {};
+    const el = document.getElementById(elId);
+    if (current == null || prev == null || (current === 0 && prev === 0)) {
+      el.textContent = '—'; el.className = 'hx-prog-delta delta-flat'; return;
+    }
+    const diff = current - prev;
+    const inverted = opts.inverted || false;
+    const positiveGood = inverted ? diff < 0 : diff > 0;
+    const fmt = opts.fmt || (v => v.toFixed(1));
+    if (Math.abs(diff) < (opts.threshold || 0.1)) {
+      el.textContent = '— flat'; el.className = 'hx-prog-delta delta-flat';
+    } else if (positiveGood) {
+      el.textContent = '↑ ' + fmt(Math.abs(diff)) + (opts.unit || '');
+      el.className = 'hx-prog-delta delta-up';
+    } else {
+      el.textContent = '↓ ' + fmt(Math.abs(diff)) + (opts.unit || '');
+      el.className = 'hx-prog-delta delta-down';
+    }
+  }
+
+  function chartColors() {
+    return {
+      grid: 'rgba(212, 168, 109, 0.07)',
+      tick: 'rgba(236, 231, 221, 0.85)',
+      primary: '#d4a86d',
+      primaryFill: 'rgba(212, 168, 109, 0.14)',
+      tooltipBg: '#d4a86d',
+      tooltipText: '#1a1411'
+    };
+  }
+
+  function makeMiniChart(canvasId, labels, values, type) {
+    type = type || 'bar';
+    if (charts[canvasId]) { charts[canvasId].destroy(); delete charts[canvasId]; }
+    const el = document.getElementById(canvasId);
+    if (!el) return;
+    const colors = chartColors();
+    charts[canvasId] = new Chart(el, {
+      type: type,
+      data: {
+        labels: labels,
+        datasets: [{
+          data: values,
+          backgroundColor: type === 'bar' ? colors.primary : colors.primaryFill,
+          borderColor: colors.primary,
+          borderWidth: 2,
+          tension: 0.3,
+          pointRadius: type === 'line' ? 2.5 : 0,
+          pointBackgroundColor: colors.primary,
+          pointBorderColor: colors.primary,
+          fill: type === 'line',
+          borderRadius: 0
+        }]
+      },
+      options: {
+        responsive: true, maintainAspectRatio: false,
+        plugins: {
+          legend: { display: false },
+          tooltip: {
+            enabled: true,
+            backgroundColor: colors.tooltipBg,
+            titleColor: colors.tooltipText,
+            bodyColor: colors.tooltipText,
+            borderWidth: 0,
+            padding: 9,
+            cornerRadius: 2,
+            titleFont: { family: 'Inter, sans-serif', size: 11, weight: '600' },
+            bodyFont: { family: 'JetBrains Mono, monospace', size: 11 }
+          }
+        },
+        scales: {
+          x: { grid: { display: false }, ticks: { color: colors.tick, font: { family: 'JetBrains Mono, monospace', size: 9 }, maxRotation: 0, autoSkip: true, maxTicksLimit: 5 } },
+          y: { grid: { color: colors.grid, drawTicks: false }, border: { display: false }, ticks: { color: colors.tick, font: { family: 'JetBrains Mono, monospace', size: 9 }, maxTicksLimit: 3 }, beginAtZero: type === 'bar' }
+        }
+      }
+    });
+  }
+
+  function refreshProgressCharts(sessions, hrv) {
+    const volWeeks = getWeeklyBuckets(sessions, 'date', items => items.reduce((a,b) => a + b.dur, 0) / 60, 4);
+    const volLabels = volWeeks.map(w => w.label);
+    const volValues = volWeeks.map(w => Math.round(w.value * 10) / 10);
+    makeMiniChart('ch-vol', volLabels, volValues, 'bar');
+    setDelta('dl-vol', volValues[3], volValues[2], { fmt: v => v.toFixed(1), unit: 'h', threshold: 0.3 });
+
+    const z2Weeks = getWeeklyBuckets(sessions, 'date', items => items.filter(s => s.type === 'zone2').reduce((a,b) => a + b.dur, 0) / 60, 4);
+    const z2Labels = z2Weeks.map(w => w.label);
+    const z2Values = z2Weeks.map(w => Math.round(w.value * 10) / 10);
+    makeMiniChart('ch-z2', z2Labels, z2Values, 'bar');
+    setDelta('dl-z2', z2Values[3], z2Values[2], { fmt: v => v.toFixed(1), unit: 'h', threshold: 0.3 });
+
+    const hrvWrap = document.getElementById('ch-hrv-wrap');
+    if (hrv.length >= 3) {
+      hrvWrap.innerHTML = '<canvas id="ch-hrv-mini"></canvas>';
+      const sortedHrv = [...hrv].sort((a,b) => new Date(a.date) - new Date(b.date));
+      const days = sortedHrv.slice(-21);
+      const rolling = days.map((_, i) => {
+        const slice = days.slice(Math.max(0, i - 6), i + 1);
+        return Math.round(slice.reduce((a,b) => a + b.val, 0) / slice.length);
+      });
+      const labels = days.map(d => fmtDate(d.date));
+      makeMiniChart('ch-hrv-mini', labels, rolling, 'line');
+      const recent = rolling.slice(-7).reduce((a,b) => a + b, 0) / Math.min(7, rolling.length);
+      const older = rolling.length >= 14 ? rolling.slice(-14, -7).reduce((a,b) => a + b, 0) / 7 : null;
+      setDelta('dl-hrv', recent, older, { fmt: v => Math.round(v), unit: 'ms', threshold: 1 });
+    } else {
+      hrvWrap.innerHTML = '<div style="display: flex; align-items: center; justify-content: center; height: 100%; font-family: JetBrains Mono, monospace; font-size: 10px; color: var(--text-tertiary); text-transform: uppercase; letter-spacing: 0.12em;">Need 3+ readings</div>';
+      const dEl = document.getElementById('dl-hrv'); dEl.textContent = '—'; dEl.className = 'hx-prog-delta delta-flat';
+    }
+
+    const recWrap = document.getElementById('ch-rec-wrap');
+    if (hrv.length >= 3) {
+      recWrap.innerHTML = '<canvas id="ch-rec"></canvas>';
+      const sortedHrv = [...hrv].sort((a,b) => new Date(a.date) - new Date(b.date));
+      const days = sortedHrv.slice(-14);
+      const recScore = days.map(r => {
+        const sleepScore = Math.min(100, (r.sleep / 8) * 50);
+        const stressScore = ((11 - r.stress) / 10) * 30;
+        const flagPenalty = (r.alcohol ? 8 : 0) + (r.late ? 4 : 0) + (r.travel ? 6 : 0);
+        return Math.max(0, Math.min(100, Math.round(sleepScore + stressScore + 20 - flagPenalty)));
+      });
+      const labels = days.map(d => fmtDate(d.date));
+      makeMiniChart('ch-rec', labels, recScore, 'line');
+      const recAvg = recScore.slice(-7).reduce((a,b) => a + b, 0) / Math.min(7, recScore.length);
+      const olderAvg = recScore.length >= 14 ? recScore.slice(-14, -7).reduce((a,b) => a + b, 0) / 7 : null;
+      setDelta('dl-rec', recAvg, olderAvg, { fmt: v => Math.round(v), unit: '', threshold: 2 });
+    } else {
+      recWrap.innerHTML = '<div style="display: flex; align-items: center; justify-content: center; height: 100%; font-family: JetBrains Mono, monospace; font-size: 10px; color: var(--text-tertiary); text-transform: uppercase; letter-spacing: 0.12em;">Need 3+ HRV entries</div>';
+      const dEl = document.getElementById('dl-rec'); dEl.textContent = '—'; dEl.className = 'hx-prog-delta delta-flat';
+    }
+  }
+
+  function refreshDashboard() {
+    const sessions = load(SK.sessions);
+    const hrv = load(SK.hrv);
+    const wkStart = startOfWeek();
+    const wkSessions = sessions.filter(s => new Date(s.date) >= wkStart);
+    const wkMin = wkSessions.reduce((a,b) => a + b.dur, 0);
+    const z2Min = wkSessions.filter(s => s.type === 'zone2').reduce((a,b) => a + b.dur, 0);
+    const allZ2 = sessions.filter(s => s.type === 'zone2').reduce((a,b) => a + b.dur, 0);
+    const avgRpe = wkSessions.length ? wkSessions.reduce((a,b) => a + b.rpe, 0) / wkSessions.length : 0;
+
+    document.getElementById('cd-sessions').textContent = sessions.length;
+    document.getElementById('cd-z2').textContent = Math.round(allZ2 / 60);
+    document.getElementById('cd-streak').textContent = calcStreak(sessions);
+
+    document.getElementById('d-sess').textContent = wkSessions.length + '/6';
+    document.getElementById('d-sess-sub').textContent = wkSessions.length === 0 ? 'No sessions yet' : (wkSessions.length >= 5 ? 'On track' : 'Below target');
+    document.getElementById('d-z2').textContent = (z2Min / 60).toFixed(1) + 'h';
+    document.getElementById('d-z2-sub').textContent = z2Min/60 >= 3 ? 'Hitting the dose' : 'Target: 3-5h';
+    document.getElementById('d-rpe').textContent = avgRpe ? avgRpe.toFixed(1) : '—';
+    document.getElementById('d-rpe-sub').textContent = avgRpe === 0 ? 'No data' : (avgRpe > 7.5 ? 'Running hot' : avgRpe < 5 ? 'Light week' : 'Balanced');
+    document.getElementById('d-time').textContent = (wkMin / 60).toFixed(1) + 'h';
+
+    renderMixBar(wkSessions);
+    renderInsights(generateInsights(sessions, wkSessions, hrv));
+    refreshProgressCharts(sessions, hrv);
+  }
+
+  function refreshSessionList() {
+    const sessions = load(SK.sessions);
+    const list = document.getElementById('log-list');
+    const recent = sessions.slice(-8).reverse();
+    if (!recent.length) {
+      list.innerHTML = '<div class="hx-empty">No sessions logged yet. Start with today.</div>';
+    } else {
+      const labels = { 'upper-lift':'Upper lift', 'lower-lift':'Lower lift', 'hyrox-mixed':'Hyrox mixed', 'hyrox-strength':'Hyrox strength', 'zone2':'Zone 2', 'other':'Other' };
+      list.innerHTML = recent.map(s => '<div class="hx-le"><span class="hx-le-main"><strong>' + (labels[s.type] || s.type) + '</strong> · ' + s.dur + ' min · RPE ' + s.rpe + '</span><span class="hx-ld">' + fmtDate(s.date) + '</span></div>').join('');
+    }
+  }
+
+  function refreshHRV() {
+    const readings = load(SK.hrv);
+    const latest = readings[readings.length - 1];
+    document.getElementById('hrv-latest').textContent = latest ? latest.val : '—';
+    const last7 = readings.slice(-7);
+    const prev7 = readings.slice(-14, -7);
+    const avg = arr => arr.length ? Math.round(arr.reduce((a,b) => a + b.val, 0) / arr.length) : 0;
+    const a7 = avg(last7); const aP = avg(prev7);
+    document.getElementById('hrv-7').textContent = a7 ? a7 : '—';
+    if (a7 && aP) {
+      const diff = a7 - aP;
+      const arrow = diff > 0 ? '↑' : diff < 0 ? '↓' : '—';
+      document.getElementById('hrv-trend').textContent = arrow + Math.abs(diff);
+    } else {
+      document.getElementById('hrv-trend').textContent = '—';
+    }
+
+    const list = document.getElementById('hrv-list');
+    const recent = readings.slice(-5).reverse();
+    if (!recent.length) {
+      list.innerHTML = '<div class="hx-empty">No readings yet. Take morning measurements for 14 days to set a baseline.</div>';
+    } else {
+      list.innerHTML = recent.map(r => {
+        const flags = [];
+        if (r.alcohol) flags.push('alcohol');
+        if (r.late) flags.push('late meal');
+        if (r.travel) flags.push('travel');
+        const flagStr = flags.length ? ' · ' + flags.join(', ') : '';
+        return '<div class="hx-le"><span class="hx-le-main"><strong>' + r.val + ' ms</strong> · ' + r.sleep + 'h sleep · stress ' + r.stress + flagStr + '</span><span class="hx-ld">' + fmtDate(r.date) + '</span></div>';
+      }).join('');
+    }
+  }
+
+  document.getElementById('log-btn').addEventListener('click', () => {
+    const sessions = load(SK.sessions);
+    sessions.push({
+      date: new Date().toISOString(),
+      type: document.getElementById('sess-type').value,
+      dur: parseInt(document.getElementById('sess-dur').value) || 60,
+      rpe: parseInt(document.getElementById('sess-rpe').value) || 7
+    });
+    save(SK.sessions, sessions);
+    refreshSessionList();
+    refreshDashboard();
+  });
+
+  document.getElementById('hrv-btn').addEventListener('click', () => {
+    const v = parseInt(document.getElementById('hrv-val').value);
+    if (!v) return;
+    const readings = load(SK.hrv);
+    readings.push({
+      date: new Date().toISOString(),
+      val: v,
+      sleep: parseFloat(document.getElementById('hrv-sleep').value) || 7.5,
+      stress: parseInt(document.getElementById('hrv-stress').value) || 5,
+      alcohol: document.getElementById('f-alc').checked,
+      late: document.getElementById('f-late').checked,
+      travel: document.getElementById('f-trv').checked
+    });
+    save(SK.hrv, readings);
+    document.getElementById('hrv-val').value = '';
+    document.getElementById('f-alc').checked = false;
+    document.getElementById('f-late').checked = false;
+    document.getElementById('f-trv').checked = false;
+    refreshHRV();
+    refreshDashboard();
+  });
+
+  document.getElementById('set-race').addEventListener('click', () => {
+    const current = getRaceDate().toISOString().slice(0, 10);
+    const input = prompt('Enter race date (YYYY-MM-DD):', current);
+    if (!input) return;
+    const parsed = new Date(input);
+    if (isNaN(parsed.getTime())) { alert('Invalid date format. Use YYYY-MM-DD.'); return; }
+    localStorage.setItem(SK.race, parsed.toISOString());
+    updateCountdown();
+  });
+
+  document.getElementById('export-btn').addEventListener('click', () => {
+    const data = {
+      exported: new Date().toISOString(),
+      sessions: load(SK.sessions),
+      hrv: load(SK.hrv),
+      raceDate: localStorage.getItem(SK.race) || null
+    };
+    const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'hyrox-data-' + new Date().toISOString().slice(0, 10) + '.json';
+    a.click();
+    URL.revokeObjectURL(url);
+  });
+
+  document.getElementById('import-btn').addEventListener('click', () => {
+    document.getElementById('import-file').click();
+  });
+
+  document.getElementById('import-file').addEventListener('change', (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (ev) => {
+      try {
+        const data = JSON.parse(ev.target.result);
+        if (!confirm('Import will replace all current data. Continue?')) return;
+        if (Array.isArray(data.sessions)) save(SK.sessions, data.sessions);
+        if (Array.isArray(data.hrv)) save(SK.hrv, data.hrv);
+        if (data.raceDate) localStorage.setItem(SK.race, data.raceDate);
+        updateCountdown();
+        refreshSessionList();
+        refreshHRV();
+        refreshDashboard();
+        alert('Data imported successfully.');
+      } catch (err) {
+        alert('Invalid file format.');
+      }
+    };
+    reader.readAsText(file);
+    e.target.value = '';
+  });
+
+  document.getElementById('reset-btn').addEventListener('click', () => {
+    if (!confirm('Delete all sessions, HRV readings, and race date? This cannot be undone.')) return;
+    localStorage.removeItem(SK.sessions);
+    localStorage.removeItem(SK.hrv);
+    localStorage.removeItem(SK.race);
+    updateCountdown();
+    refreshSessionList();
+    refreshHRV();
+    refreshDashboard();
+  });
+
+  updateCountdown();
+  refreshDashboard();
+  refreshSessionList();
+  refreshHRV();
+})();
+</script>
+</body>
+</html>
